@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ROKET 🚀</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: white;
+            touch-action: none;
+        }
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: #0c0a18; /* Warna dasar angkasa */
+            background-size: cover;
+            background-position: center;
+            transition: opacity 0.5s ease;
+            z-index: 10;
+            padding: 1rem;
+        }
+        #start-screen {
+             background-image: url('https://images.unsplash.com/photo-1507525428034-b723a9ce6890?q=80&w=2070&auto=format&fit=crop');
+        }
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .visible {
+            opacity: 1;
+        }
+        .title {
+            font-size: 10vw;
+            font-weight: 900;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            letter-spacing: 2px;
+        }
+        .button-base {
+            padding: 1rem 3rem;
+            font-size: 5vw;
+            font-weight: 700;
+            color: white;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            margin-top: 1rem;
+        }
+        .button-base:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+        }
+        .play-button, .restart-button {
+             background: linear-gradient(145deg, #4d89ff, #3b76e0);
+        }
+        .gemini-button {
+            background: linear-gradient(145deg, #8e44ad, #9b59b6);
+            font-size: 4vw;
+        }
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        #game-ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        #score-container {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem 2rem;
+            font-size: 2rem;
+            font-weight: 700;
+            background-color: rgba(60, 120, 224, 0.8);
+            border-radius: 9999px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .siren {
+            position: absolute;
+            top: 20px;
+            font-size: 2.5rem;
+            animation: siren-flash 1s infinite;
+        }
+        @keyframes siren-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        #left-siren { left: 20px; }
+        #right-siren { right: 20px; }
+
+        #joystick-container {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 150px;
+            z-index: 3;
+            pointer-events: auto;
+        }
+        #joystick-base {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+        }
+        #joystick-handle {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            top: 35px;
+            left: 35px;
+            background: radial-gradient(circle, #ff6b6b, #e03131);
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(224, 49, 49, 0.7);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .joystick-handle-fire {
+            background: radial-gradient(circle, #50ff50, #00b000) !important;
+            box-shadow: 0 0 15px rgba(0, 176, 0, 0.7) !important;
+        }
+        .card {
+            background-color: rgba(60, 120, 224, 0.9);
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-top: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+        }
+        .card div {
+            font-size: 1rem;
+            text-align: left;
+            margin: 0.5rem 0;
+            font-weight: 700;
+        }
+        .card div span {
+            font-weight: 400;
+        }
+        #pilot-report-card {
+            background-color: rgba(142, 68, 173, 0.8);
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 400;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #8e44ad;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Layar Mulai -->
+    <div id="start-screen" class="screen visible">
+        <h1 class="title">ROKET²</h1>
+        <button id="play-button" class="play-button button-base">PLAY</button>
+    </div>
+
+    <!-- Layar Permainan (Container) -->
+    <div id="game-container" class="hidden">
+        <canvas id="gameCanvas"></canvas>
+        <div id="game-ui">
+            <div id="score-container">0</div>
+            <div id="left-siren" class="siren">🚨</div>
+            <div id="right-siren" class="siren">🚨</div>
+        </div>
+        <div id="joystick-container">
+            <div id="joystick-base"></div>
+            <div id="joystick-handle"></div>
+        </div>
+    </div>
+    
+    <!-- Layar Game Over -->
+    <div id="game-over-screen" class="screen hidden">
+        <h1 class="title" style="font-size: 8vw;">GAME OVER</h1>
+        <div class="card">
+            <div>SCORE : <span id="final-score">0</span></div>
+            <div>WAKTU HIDUP : <span id="time-survived">0s</span></div>
+            <div>JAM MULAI : <span id="start-time"></span></div>
+            <div>JAM MATI : <span id="end-time"></span></div>
+        </div>
+        <button id="restart-button" class="restart-button button-base">⟳</button>
+        <button id="get-report-button" class="gemini-button button-base">✨ Dapatkan Laporan Pilot</button>
+        <div id="pilot-report-card" class="card hidden">
+            <div id="report-loader" class="loader"></div>
+            <p id="pilot-report-text"></p>
+        </div>
+    </div>
+
+    <script>
+        // Mengatur elemen-elemen UI
+        const startScreen = document.getElementById('start-screen');
+        const gameContainer = document.getElementById('game-container');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const playButton = document.getElementById('play-button');
+        const restartButton = document.getElementById('restart-button');
+        const scoreElement = document.getElementById('score-container');
+        const getReportButton = document.getElementById('get-report-button');
+        const pilotReportCard = document.getElementById('pilot-report-card');
+        const reportLoader = document.getElementById('report-loader');
+        const pilotReportText = document.getElementById('pilot-report-text');
+
+        // Canvas
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Joystick
+        const joystickContainer = document.getElementById('joystick-container');
+        const joystickHandle = document.getElementById('joystick-handle');
+
+        let animationFrameId;
+        let score;
+        let player, meteors, stars, particles, lasers, explosions;
+        let gameTimer, meteorSpawnInterval;
+        let joystickActive = false, fireMode = false, shootCooldown = false;
+        let lastTap = 0;
+        let joystickCenter = { x: 0, y: 0 };
+        let joystickPos = { x: 0, y: 0 };
+        let gameStats = { startTime: null, endTime: null };
+        let screenShake = { intensity: 0, duration: 0 };
+        
+        function drawPlayer(p) { ctx.save(); ctx.translate(p.x, p.y); ctx.fillStyle = '#d0d0d0'; ctx.beginPath(); ctx.moveTo(0, -p.h / 2); ctx.bezierCurveTo(p.w / 2, -p.h / 4, p.w / 2, p.h / 4, 0, p.h / 2); ctx.bezierCurveTo(-p.w / 2, p.h / 4, -p.w / 2, -p.h / 4, 0, -p.h / 2); ctx.fill(); ctx.fillStyle = '#e03131'; ctx.beginPath(); ctx.moveTo(0, -p.h/2); ctx.lineTo(-p.w/3, -p.h/2 + 5); ctx.lineTo(p.w/3, -p.h/2 + 5); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#a0d8f0'; ctx.beginPath(); ctx.arc(0, -p.h / 5, p.w / 4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#e03131'; ctx.beginPath(); ctx.moveTo(-p.w / 2, p.h / 5); ctx.lineTo(-p.w, p.h / 2); ctx.lineTo(-p.w / 2, p.h / 2); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(p.w / 2, p.h / 5); ctx.lineTo(p.w, p.h / 2); ctx.lineTo(p.w / 2, p.h / 2); ctx.closePath(); ctx.fill(); ctx.restore(); }
+        function drawMeteor(m) { ctx.save(); ctx.translate(m.x, m.y); ctx.rotate(m.angle); ctx.shadowColor = '#ff6b00'; ctx.shadowBlur = 20; ctx.fillStyle = '#8b5a2b'; ctx.beginPath(); ctx.arc(0, 0, m.radius, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; ctx.beginPath(); ctx.arc(m.radius * 0.3, -m.radius * 0.2, m.radius * 0.25, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(-m.radius * 0.4, m.radius * 0.4, m.radius * 0.15, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+        function drawLaser(l) { ctx.fillStyle = '#00ffff'; ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 10; ctx.fillRect(l.x - l.w / 2, l.y, l.w, l.h); ctx.shadowBlur = 0; }
+        
+        function drawBackground() {
+            ctx.fillStyle = '#0c0a18'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = 'white';
+            stars.forEach(star => { ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2); ctx.fill(); star.y += star.speed; if (star.y > canvas.height) { star.y = 0; star.x = Math.random() * canvas.width; } });
+        }
+        
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+
+        function init() {
+            resizeCanvas();
+            score = 0; scoreElement.textContent = score;
+            player = { x: canvas.width / 2, y: canvas.height - 100, w: 25, h: 50, speed: 3.5, dx: 0, dy: 0 };
+            meteors = []; particles = []; lasers = []; explosions = []; stars = [];
+            for (let i = 0; i < 100; i++) { stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: Math.random() * 1.5, speed: Math.random() * 0.5 + 0.2 }); }
+            fireMode = false; joystickHandle.classList.remove('joystick-handle-fire');
+        }
+
+        function startGame() {
+            init(); startScreen.classList.add('hidden'); gameOverScreen.classList.add('hidden'); gameContainer.classList.remove('hidden');
+            gameStats.startTime = new Date(); clearInterval(gameTimer); clearInterval(meteorSpawnInterval);
+            gameTimer = setInterval(() => { score++; scoreElement.textContent = score; }, 100);
+            meteorSpawnInterval = setInterval(spawnMeteor, 600); loop();
+        }
+        
+        function gameOver() {
+            cancelAnimationFrame(animationFrameId); clearInterval(gameTimer); clearInterval(meteorSpawnInterval); triggerScreenShake(15, 20);
+            gameStats.endTime = new Date(); document.getElementById('final-score').textContent = score;
+            const timeSurvived = ((gameStats.endTime - gameStats.startTime) / 1000).toFixed(1);
+            document.getElementById('time-survived').textContent = `${timeSurvived}s`; document.getElementById('start-time').textContent = gameStats.startTime.toLocaleTimeString(); document.getElementById('end-time').textContent = gameStats.endTime.toLocaleTimeString();
+            getReportButton.style.display = 'block'; pilotReportCard.classList.add('hidden'); pilotReportText.textContent = '';
+            gameContainer.classList.add('hidden'); gameOverScreen.classList.remove('hidden'); gameOverScreen.classList.add('visible');
+        }
+        
+        function spawnMeteor() { const radius = Math.random() * 25 + 15; meteors.push({ x: Math.random() * canvas.width, y: -radius, radius, speed: Math.random() * 2.5 + 1.5, angle: 0, rotationSpeed: (Math.random() - 0.5) * 0.02 }); }
+        function shootLaser() { if (shootCooldown) return; lasers.push({x: player.x, y: player.y - player.h / 2, w: 4, h: 20, speed: 7}); shootCooldown = true; setTimeout(() => { shootCooldown = false; }, 250); }
+        function createExplosion(x, y, radius) { let explosionParticles = []; for(let i=0; i<radius; i++) { explosionParticles.push({x,y, size: Math.random() * 3 + 1, speedX: (Math.random() - 0.5) * 4, speedY: (Math.random() - 0.5) * 4, life: 30}); } explosions.push(explosionParticles); }
+
+        function createParticles() { for (let i = 0; i < 2; i++) { particles.push({ x: player.x, y: player.y + player.h / 2, size: Math.random() * 3 + 1, speedY: Math.random() * 1 + 1, color: `rgba(255, ${Math.floor(Math.random() * 100 + 155)}, 0, 0.8)`, life: 30 }); } }
+        function handleParticles() { for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.y += p.speedY; p.life--; if(p.life <= 0) particles.splice(i, 1); else { ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); } } }
+        function handleExplosions() { for (let i = explosions.length - 1; i >= 0; i--) { const exp = explosions[i]; for (let j = exp.length - 1; j >= 0; j--) { const p = exp[j]; p.x += p.speedX; p.y += p.speedY; p.life--; if(p.life <= 0) exp.splice(j,1); else { ctx.fillStyle = `rgba(255, 165, 0, ${p.life/30})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();}} if(exp.length === 0) explosions.splice(i,1);}}
+        function triggerScreenShake(intensity, duration) { screenShake.intensity = intensity; screenShake.duration = duration; }
+
+        function update() {
+            let targetDx = 0, targetDy = 0;
+            if (joystickActive && !fireMode) {
+                const dx = joystickPos.x - joystickCenter.x; const dy = joystickPos.y - joystickCenter.y;
+                targetDx = (dx / 60) * player.speed; targetDy = (dy / 60) * player.speed;
+            }
+            player.dx += (targetDx - player.dx) * 0.1; player.dy += (targetDy - player.dy) * 0.1;
+            player.x += player.dx; player.y += player.dy;
+            createParticles();
+            if (player.x < player.w / 2) player.x = player.w / 2; if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2; if (player.y < player.h / 2) player.y = player.h / 2; if (player.y > canvas.height - player.h / 2) player.y = canvas.height - player.h / 2;
+            
+            lasers.forEach((l, lIndex) => { l.y -= l.speed; if (l.y < 0) lasers.splice(lIndex, 1); });
+
+            meteors.forEach((m, mIndex) => {
+                m.y += m.speed; m.angle += m.rotationSpeed; if (m.y - m.radius > canvas.height) meteors.splice(mIndex, 1);
+                const playerDist = Math.hypot(player.x - m.x, player.y - m.y);
+                if (playerDist - m.radius - player.w/2 < 1) gameOver(); else if (playerDist < 150 && screenShake.duration <= 0) triggerScreenShake(3, 5);
+                
+                lasers.forEach((l, lIndex) => {
+                    if (Math.hypot(l.x - m.x, l.y - m.y) < m.radius) {
+                        createExplosion(m.x, m.y, m.radius); score += 10; scoreElement.textContent = score;
+                        setTimeout(() => { meteors.splice(mIndex, 1); lasers.splice(lIndex, 1); }, 0);
+                    }
+                });
+            });
+        }
+        
+        function render() {
+            ctx.save();
+            if (screenShake.duration > 0) { ctx.translate((Math.random() - 0.5) * screenShake.intensity, (Math.random() - 0.5) * screenShake.intensity); screenShake.duration--; }
+            drawBackground(); handleParticles(); handleExplosions(); lasers.forEach(drawLaser); drawPlayer(player); meteors.forEach(drawMeteor);
+            ctx.restore();
+        }
+
+        function loop() { animationFrameId = requestAnimationFrame(loop); update(); render(); }
+        async function getPilotReport() {
+            getReportButton.style.display = 'none'; pilotReportCard.classList.remove('hidden'); reportLoader.style.display = 'block'; pilotReportText.textContent = '';
+            const finalScore = document.getElementById('final-score').textContent; const timeSurvived = document.getElementById('time-survived').textContent;
+            const apiKey = ""; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const systemPrompt = "Anda adalah komandan penerbangan yang humoris dan suportif di sebuah akademi luar angkasa. Tugas Anda adalah menulis laporan kinerja singkat (satu paragraf, maksimal 4 kalimat) untuk seorang pilot roket kadet yang pemberani dan jika skor mereka lewat dari 1000 makan buat sambutan 'super Pilot'. Laporan harus dalam Bahasa Indonesia.";
+            const userQuery = `Kadet saya baru saja menyelesaikan simulasi di tengah hujan meteor. Skor mereka adalah ${finalScore} dan waktu bertahan hidup mereka adalah ${timeSurvived}. Tuliskan laporan kinerja yang lucu namun membesarkan hati untuk mereka. Sapa mereka secara langsung sebagai 'Pilot'.`;
+            const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: systemPrompt }] }, };
+            try { const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) throw new Error('API request failed'); const result = await response.json(); const text = result.candidates?.[0]?.content?.parts?.[0]?.text; pilotReportText.textContent = text || "Tidak dapat memuat laporan."; } catch (error) { console.error("Error:", error); pilotReportText.textContent = "Gagal menghubungi menara kontrol."; } finally { reportLoader.style.display = 'none'; }
+        }
+
+        function handleJoystickStart(e) {
+            e.preventDefault(); const now = Date.now(); const timeSinceLastTap = now - lastTap;
+            if (timeSinceLastTap < 300) { fireMode = !fireMode; joystickHandle.classList.toggle('joystick-handle-fire'); lastTap = 0; return; }
+            lastTap = now;
+            if(fireMode) { shootLaser(); return; }
+            joystickActive = true; const rect = joystickContainer.getBoundingClientRect(); joystickCenter.x = rect.left + rect.width / 2; joystickCenter.y = rect.top + rect.height / 2; const touch = e.type === 'mousedown' ? e : e.changedTouches[0]; joystickPos.x = touch.clientX; joystickPos.y = touch.clientY;
+        }
+        function handleJoystickMove(e) { if (!joystickActive || fireMode) return; e.preventDefault(); const touch = e.type === 'mousemove' ? e : e.changedTouches[0]; joystickPos.x = touch.clientX; joystickPos.y = touch.clientY; const dx = joystickPos.x - joystickCenter.x; const dy = joystickPos.y - joystickCenter.y; const distance = Math.sqrt(dx * dx + dy * dy); const maxDist = 75 / 2; const angle = Math.atan2(dy, dx); if (distance > maxDist) { joystickHandle.style.transform = `translate(${maxDist * Math.cos(angle)}px, ${maxDist * Math.sin(angle)}px)`; } else { joystickHandle.style.transform = `translate(${dx}px, ${dy}px)`; } }
+        function handleJoystickEnd(e) { if (!joystickActive || fireMode) return; e.preventDefault(); joystickActive = false; joystickHandle.style.transform = `translate(0px, 0px)`; }
+
+        playButton.addEventListener('click', startGame); restartButton.addEventListener('click', startGame); getReportButton.addEventListener('click', getPilotReport); window.addEventListener('resize', resizeCanvas);
+        joystickContainer.addEventListener('mousedown', handleJoystickStart); window.addEventListener('mousemove', handleJoystickMove); window.addEventListener('mouseup', handleJoystickEnd);
+        joystickContainer.addEventListener('touchstart', handleJoystickStart, { passive: false }); window.addEventListener('touchmove', handleJoystickMove, { passive: false }); window.addEventListener('touchend', handleJoystickEnd, { passive: false });
+
+    </script>
+</body>
+</html>
