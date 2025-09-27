@@ -347,7 +347,7 @@
         async function getPilotReport() {
             getReportButton.style.display = 'none'; pilotReportCard.classList.remove('hidden'); reportLoader.style.display = 'block'; pilotReportText.textContent = '';
             const finalScore = document.getElementById('final-score').textContent; const timeSurvived = document.getElementById('time-survived').textContent;
-            const apiKey = ""; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const apiKey = "AIzaSyAvESrioqUd7OBNvru5l0AC_jjesuyFDkE"; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const systemPrompt = "Anda adalah komandan penerbangan yang humoris dan suportif di sebuah akademi luar angkasa. Tugas Anda adalah menulis laporan kinerja singkat (satu paragraf, maksimal 4 kalimat) untuk seorang pilot roket kadet yang pemberani dan jika skor mereka lewat dari 1000 makan buat sambutan 'super Pilot'. Laporan harus dalam Bahasa Indonesia.";
             const userQuery = `Kadet saya baru saja menyelesaikan simulasi di tengah hujan meteor. Skor mereka adalah ${finalScore} dan waktu bertahan hidup mereka adalah ${timeSurvived}. Tuliskan laporan kinerja yang lucu namun membesarkan hati untuk mereka. Sapa mereka secara langsung sebagai 'Pilot'.`;
             const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: systemPrompt }] }, };
